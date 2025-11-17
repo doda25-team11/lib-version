@@ -7,14 +7,14 @@ A version-aware Maven library that provides the util to query the version the li
 Add the dependency to Maven project:
 
     <dependency>
-        <groupId>com.myorg</groupId>
+        <groupId>com.doda25.team11</groupId>
         <artifactId>lib-version</artifactId>
         <version>1.0.0</version>
     </dependency>
 
 In code:
 
-    import com.myorg.version.VersionUtil;
+    import com.doda25.team11.version.VersionUtil;
 
     public class Example {
         public static void main(String[] args) {
