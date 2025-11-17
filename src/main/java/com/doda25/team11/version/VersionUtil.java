@@ -14,7 +14,6 @@ public final class VersionUtil {
     private static String cachedVersion;
 
     private VersionUtil() {
-        // utility class
     }
 
     public static String getVersion() {
@@ -31,13 +30,12 @@ public final class VersionUtil {
             return v;
         }
 
-        // 2) Fallback: try pom.properties (only available once jar is built)
+        // 2) Fallback: try pom.properties
         v = loadFromResource(POM_PROPERTIES_FILE, "version");
         if (v != null && !v.isBlank()) {
             return v;
         }
 
-        // 3) If all else fails
         return UNKNOWN;
     }
 
