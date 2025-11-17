@@ -6,17 +6,26 @@
 
     <groupId>com.doda25.team11</groupId>
     <artifactId>lib-version</artifactId>
-    <version>1.0.0</version>
+    <version>${revision}</version>
     <packaging>jar</packaging>
 
     <name>lib-version</name>
     <url>http://maven.apache.org</url>
 
+    <distributionManagement>
+      <repository>
+        <id>github</id>
+        <name>GitHub Packages</name>
+        <url>https://maven.pkg.github.com/doda25-team11/lib-version</url>
+      </repository>
+    </distributionManagement>
+    
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <junit.version>5.10.0</junit.version>
+      <revision>${revision}</revision>
+      <maven.compiler.source>17</maven.compiler.source>
+      <maven.compiler.target>17</maven.compiler.target>
+      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+      <junit.version>5.10.0</junit.version>
     </properties>
 
     <dependencies>
