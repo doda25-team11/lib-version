@@ -9,7 +9,7 @@ Add the dependency to Maven project:
     <dependency>
         <groupId>com.doda25.team11</groupId>
         <artifactId>lib-version</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.4</version>
     </dependency>
 
 In code:
