@@ -2,13 +2,11 @@ name: Library Release
 
 on:
   push:
-    tags:
-      - 'v*'
 
 jobs:
   publish:
     runs-on: ubuntu-latest
-
+    
     permissions:
       contents: read
       packages: write
@@ -23,16 +21,15 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Extract version from tag
+      - name: Extract version
         id: vars
         run: |
-          TAG="${GITHUB_REF#refs/tags/}"
-          VERSION="${TAG#v}"
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-
+          VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          
       - name: Build & publish to GitHub Packages
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           mvn \
             -s .github/maven-settings.xml \
