@@ -22,3 +22,14 @@ In code:
             System.out.println("lib-version version: " + version);
         }
     }
+
+## Updating version
+
+The version is defined in the pom.xml under properties -> revision:
+
+    <properties>
+        <revision>1.0.5</revision>
+    ...
+
+Each time when push.
+
