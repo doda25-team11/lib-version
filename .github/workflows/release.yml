@@ -1,7 +1,9 @@
 name: Library Release
-#
+
 on:
   push:
+    branches:
+      - main
 
 jobs:
   publish:
@@ -23,37 +25,63 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Generate version
-        id: version
+      - name: Extract current version
+        id: current
         run: |
-          # Get the latest tag or start from 1.0.0
-          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
-          # Remove 'v' prefix and increment patch version
-          VERSION=$(echo $LATEST_TAG | sed 's/v//')
-          MAJOR=$(echo $VERSION | cut -d. -f1)
-          MINOR=$(echo $VERSION | cut -d. -f2)
-          PATCH=$(echo $VERSION | cut -d. -f3)
-          NEW_PATCH=$((PATCH + 1))
-          NEW_VERSION="${MAJOR}.${MINOR}.${NEW_PATCH}"
+          VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Current version: $VERSION"
+      
+      - name: Remove SNAPSHOT suffix for release
+        id: release
+        run: |
+          CURRENT="${{ steps.current.outputs.version }}"
+          RELEASE_VERSION=${CURRENT%-SNAPSHOT}
+          echo "version=$RELEASE_VERSION" >> $GITHUB_OUTPUT
+          echo "Release version: $RELEASE_VERSION"
+      
+      - name: Update to release version
+        run: |
+          mvn versions:set -DnewVersion=${{ steps.release.outputs.version }} -DgenerateBackupPoms=false
           
-          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
-          echo "Generated version: $NEW_VERSION"
-          
-      - name: Build & publish to GitHub Packages
+      - name: Build & publish release to GitHub Packages
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           mvn \
             -s .github/maven-settings.xml \
-            -Drevision=${{ steps.version.outputs.version }} \
             clean deploy
       
       - name: Create Release Tag
         run: |
-          VERSION=${{ steps.version.outputs.version }}
+          VERSION=${{ steps.release.outputs.version }}
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git tag -a "v${VERSION}" -m "Release version ${VERSION}"
           git push origin "v${VERSION}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Calculate next SNAPSHOT version
+        id: next
+        run: |
+          RELEASE="${{ steps.release.outputs.version }}"
+          MAJOR=$(echo $RELEASE | cut -d. -f1)
+          MINOR=$(echo $RELEASE | cut -d. -f2)
+          PATCH=$(echo $RELEASE | cut -d. -f3)
+          NEXT_PATCH=$((PATCH + 1))
+          NEXT_VERSION="${MAJOR}.${MINOR}.${NEXT_PATCH}-SNAPSHOT"
+          echo "version=$NEXT_VERSION" >> $GITHUB_OUTPUT
+          echo "Next SNAPSHOT version: $NEXT_VERSION"
+      
+      - name: Update to next SNAPSHOT version
+        run: |
+          mvn versions:set -DnewVersion=${{ steps.next.outputs.version }} -DgenerateBackupPoms=false
+      
+      - name: Commit and push version updates
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add pom.xml
+          git commit -m "Bump to next development version ${{ steps.next.outputs.version }}"
+          git push origin main
