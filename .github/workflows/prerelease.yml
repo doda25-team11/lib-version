@@ -28,7 +28,7 @@ jobs:
       - name: Extract base version
         id: base
         run: |
-          VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          VERSION=$(mvn help:evaluate -Dexpression=revision -q -DforceStdout)
           # Remove -SNAPSHOT if present
           BASE_VERSION=${VERSION%-SNAPSHOT}
           echo "version=$BASE_VERSION" >> $GITHUB_OUTPUT
@@ -37,7 +37,6 @@ jobs:
       - name: Generate pre-release version
         id: prerelease
         run: |
-          # test comment
           BASE_VERSION="${{ steps.base.outputs.version }}"
           BRANCH_NAME="${{ github.ref_name }}"
           # Replace slashes and special characters with hyphens
@@ -48,15 +47,15 @@ jobs:
           PRERELEASE_VERSION="${BASE_VERSION}-${BRANCH_CLEAN}-${TIMESTAMP}"
           echo "version=$PRERELEASE_VERSION" >> $GITHUB_OUTPUT
           echo "Pre-release version: $PRERELEASE_VERSION"
-      
+       
       - name: Build & publish pre-release to GitHub Packages
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           mvn \
             -s .github/maven-settings.xml \
-            clean deploy \
-            -Drevision=${{ steps.prerelease.outputs.version }} \
+            clean deploy\
+            -Drevision=${{ steps.prerelease.outputs.version }}\
             -DskipTests
       
       - name: Comment on commit
