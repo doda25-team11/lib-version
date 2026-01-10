@@ -47,18 +47,17 @@ jobs:
           PRERELEASE_VERSION="${BASE_VERSION}-${BRANCH_CLEAN}-${TIMESTAMP}"
           echo "version=$PRERELEASE_VERSION" >> $GITHUB_OUTPUT
           echo "Pre-release version: $PRERELEASE_VERSION"
-      
-      - name: Update to pre-release version
-        run: |
-          mvn versions:set -DnewVersion=${{ steps.prerelease.outputs.version }} -DgenerateBackupPoms=false
-          
+
       - name: Build & publish pre-release to GitHub Packages
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           mvn \
             -s .github/maven-settings.xml \
-            clean deploy
+            clean deploy \
+            -Drevision=${{ steps.prerelease.outputs.version }} \
+            -DskipTests
+
       
       - name: Comment on commit
         run: |
