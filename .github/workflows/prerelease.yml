@@ -28,6 +28,7 @@ jobs:
       - name: Extract base version
         id: base
         run: |
+          # testline
           VERSION=$(mvn help:evaluate -Dexpression=revision -q -DforceStdout)
           # Remove -SNAPSHOT if present
           BASE_VERSION=${VERSION%-SNAPSHOT}
