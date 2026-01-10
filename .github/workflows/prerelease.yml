@@ -54,7 +54,7 @@ jobs:
           
       - name: Build & publish pre-release to GitHub Packages
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           mvn \
             -s .github/maven-settings.xml \
